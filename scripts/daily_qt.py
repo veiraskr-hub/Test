@@ -17,6 +17,7 @@ import argparse
 import os
 import re
 import sys
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -42,15 +43,25 @@ class DailyBible:
     raw_text: str = ""  # 구조 파싱 실패 시 페이지 본문 텍스트
 
 
-def fetch_html() -> str:
-    resp = requests.get(
-        SOURCE_URL,
-        headers={"User-Agent": "Mozilla/5.0 (daily-qt-bot)"},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    resp.encoding = resp.apparent_encoding or "utf-8"
-    return resp.text
+def fetch_html(attempts: int = 5) -> str:
+    # 사이트가 가끔 응답하지 않아 간격을 늘려 가며 다시 시도한다
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = requests.get(
+                SOURCE_URL,
+                headers={"User-Agent": "Mozilla/5.0 (daily-qt-bot)"},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            resp.encoding = resp.apparent_encoding or "utf-8"
+            return resp.text
+        except requests.RequestException as err:
+            if attempt == attempts:
+                raise
+            wait = 30 * attempt
+            print(f"본문 요청 실패({attempt}/{attempts}): {err} — {wait}초 후 재시도")
+            time.sleep(wait)
+    raise AssertionError("unreachable")
 
 
 def _text(node) -> str:
