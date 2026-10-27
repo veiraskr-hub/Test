@@ -205,7 +205,9 @@ def main() -> int:
     bible = parse(html, today.isoformat())
 
     draft = None
-    if not args.no_ai:
+    if not args.no_ai and not os.environ.get("ANTHROPIC_API_KEY"):
+        print("ANTHROPIC_API_KEY가 없어 빈 묵상 양식으로 작성합니다.")
+    elif not args.no_ai:
         draft = write_draft(bible, os.environ.get("QT_MODEL") or DEFAULT_MODEL)
 
     include_commentary = os.environ.get("QT_INCLUDE_COMMENTARY", "1") != "0"
