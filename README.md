@@ -1,19 +1,25 @@
 # 매일성경 큐티 자동화
 
 [성서유니온 매일성경](https://sum.su.or.kr:8888/bible/today)의 오늘 본문을 가져와서
-Claude가 묵상 초안(관찰 · 해석 · 묵상 질문 · 적용 · 기도)을 쓰고,
+Claude가 묵상 초안(관찰 · 해석 · 묵상 질문 · 적용 · 기도)을 써서
 `qt/YYYY/MM/YYYY-MM-DD.md` 노트로 이 저장소에 커밋합니다.
 
 초안 아래의 **나의 묵상** 칸은 직접 채워서 노트를 완성하면 됩니다.
 
-## 설정
+## 매일 동작 순서
 
-1. 저장소 **Settings → Secrets and variables → Actions**에서 Secret `ANTHROPIC_API_KEY`를 추가합니다.
-2. (선택) 같은 화면의 **Variables** 탭:
-   - `QT_MODEL`: 사용할 모델 (기본 `claude-opus-5-5`)
-   - `QT_INCLUDE_COMMENTARY`: `0`이면 성서유니온 해설을 노트에 저장하지 않습니다.
-3. **Actions → Daily QT → Run workflow**로 바로 한 번 실행해 봅니다.
-   이후에는 매일 05:47(KST)에 자동으로 실행됩니다.
+1. **04:17 (KST)** GitHub Actions가 오늘 본문을 받아 빈 묵상 양식 노트를 커밋합니다.
+2. **04:51 (KST)** Claude Code 예약 작업이 그 노트를 읽고 `prompts/qt_draft.md` 형식대로
+   묵상 초안을 채워 커밋합니다. 노트가 아직 없으면 워크플로를 직접 실행한 뒤 이어서 작성합니다.
+   (API 키 없이 Claude 구독 사용량으로 동작합니다.)
+3. 아침에 노트를 열어 **나의 묵상** 칸을 채웁니다.
+
+초안 형식을 바꾸고 싶으면 `prompts/qt_draft.md`를 고치면 됩니다.
+
+### (선택) API 키로 Actions에서 바로 초안 작성
+
+Secret `ANTHROPIC_API_KEY`를 등록하면 1단계에서 초안까지 작성합니다. 키가 없으면 빈 양식만 만듭니다.
+Variables: `QT_MODEL`(기본 `claude-opus-5-5`), `QT_INCLUDE_COMMENTARY`(`0`이면 해설 저장 안 함).
 
 ## 로컬에서 실행
 

@@ -2,7 +2,7 @@ name: Daily QT
 
 on:
   schedule:
-    - cron: "47 20 * * *" # 매일 05:47 KST
+    - cron: "17 19 * * *" # 매일 04:17 KST (Claude 초안 작성 전에 본문 준비)
   workflow_dispatch:
     inputs:
       no_ai:
