@@ -1,0 +1,25 @@
+name: Kakao Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "카카오 인가 코드 (주소창의 code= 뒤 값)"
+        required: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Exchange code for refresh token
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_CODE: ${{ inputs.code }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: python scripts/kakao.py setup --code "$KAKAO_CODE"
