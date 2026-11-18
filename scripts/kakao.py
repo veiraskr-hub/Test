@@ -1,8 +1,11 @@
-"""오늘 큐티 노트의 '성도 공유글'을 카카오톡 '나에게 보내기'로 전송한다.
+"""어제(하루 전) 큐티 노트의 '성도 공유글'을 카카오톡 '나에게 보내기'로 전송한다.
+
+매일 아침 7시(KST)에 그날 기준 하루 전 날짜의 노트를 보낸다.
+예) 11월 18일 아침 → qt/2026/11/2026-11-17.md
 
 사용법:
     python scripts/kakao.py setup --code <인가 코드>   # 최초 1회: 리프레시 토큰 발급·저장
-    python scripts/kakao.py send                      # 오늘 공유글 전송
+    python scripts/kakao.py send                      # 하루 전 공유글 전송
     python scripts/kakao.py send --dry-run            # 전송 없이 보낼 내용만 출력
 
 환경 변수:
@@ -106,8 +109,9 @@ def split_message(text: str, limit: int = TEXT_LIMIT) -> list[str]:
 
 
 def send(dry_run: bool) -> None:
-    today = datetime.now(KST).date()
-    rel = f"qt/{today:%Y}/{today:%m}/{today.isoformat()}.md"
+    # 아침에 보내는 글은 하루 전 날짜의 묵상이다.
+    target = datetime.now(KST).date() - timedelta(days=1)
+    rel = f"qt/{target:%Y}/{target:%m}/{target.isoformat()}.md"
     chunks = split_message(share_post(ROOT / rel))
 
     if dry_run:
@@ -145,7 +149,7 @@ def main() -> None:
     sub = parser.add_subparsers(dest="command", required=True)
     p_setup = sub.add_parser("setup", help="인가 코드로 리프레시 토큰 발급·저장")
     p_setup.add_argument("--code", required=True)
-    p_send = sub.add_parser("send", help="오늘 공유글 전송")
+    p_send = sub.add_parser("send", help="하루 전 공유글 전송")
     p_send.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
